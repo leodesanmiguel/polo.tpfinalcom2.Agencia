@@ -15,7 +15,6 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import polo.logica.Pago;
-import polo.logica.Venta;
 import polo.persistencia.exceptions.NonexistentEntityException;
 
 /**
@@ -28,8 +27,8 @@ public class PagoJpaController implements Serializable {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
-
-    public PagoJpaController() {
+    
+     public PagoJpaController() {
         emf = Persistence.createEntityManagerFactory("TPFinalv2PU");
     }
 
@@ -42,16 +41,7 @@ public class PagoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Venta venta = pago.getVenta();
-            if (venta != null) {
-                venta = em.getReference(venta.getClass(), venta.getIdVenta());
-                pago.setVenta(venta);
-            }
             em.persist(pago);
-            if (venta != null) {
-                venta.getPagos().add(pago);
-                venta = em.merge(venta);
-            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -60,27 +50,13 @@ public class PagoJpaController implements Serializable {
         }
     }
 
+    
     public void edit(Pago pago) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Pago persistentPago = em.find(Pago.class, pago.getIdPago());
-            Venta ventaOld = persistentPago.getVenta();
-            Venta ventaNew = pago.getVenta();
-            if (ventaNew != null) {
-                ventaNew = em.getReference(ventaNew.getClass(), ventaNew.getIdVenta());
-                pago.setVenta(ventaNew);
-            }
             pago = em.merge(pago);
-            if (ventaOld != null && !ventaOld.equals(ventaNew)) {
-                ventaOld.getPagos().remove(pago);
-                ventaOld = em.merge(ventaOld);
-            }
-            if (ventaNew != null && !ventaNew.equals(ventaOld)) {
-                ventaNew.getPagos().add(pago);
-                ventaNew = em.merge(ventaNew);
-            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -109,11 +85,6 @@ public class PagoJpaController implements Serializable {
                 pago.getIdPago();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The pago with id " + id + " no longer exists.", enfe);
-            }
-            Venta venta = pago.getVenta();
-            if (venta != null) {
-                venta.getPagos().remove(pago);
-                venta = em.merge(venta);
             }
             em.remove(pago);
             em.getTransaction().commit();
@@ -169,5 +140,5 @@ public class PagoJpaController implements Serializable {
             em.close();
         }
     }
-
+    
 }

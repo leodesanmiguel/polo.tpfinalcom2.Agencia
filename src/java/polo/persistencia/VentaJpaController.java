@@ -6,18 +6,16 @@
 package polo.persistencia;
 
 import java.io.Serializable;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import polo.logica.Cliente;
 import polo.logica.Empleado;
-import polo.logica.Pago;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import polo.logica.Venta;
 import polo.persistencia.exceptions.NonexistentEntityException;
 
@@ -31,8 +29,8 @@ public class VentaJpaController implements Serializable {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
-
-    public VentaJpaController() {
+    
+     public VentaJpaController() {
         emf = Persistence.createEntityManagerFactory("TPFinalv2PU");
     }
 
@@ -41,9 +39,6 @@ public class VentaJpaController implements Serializable {
     }
 
     public void create(Venta venta) {
-        if (venta.getPagos() == null) {
-            venta.setPagos(new ArrayList<Pago>());
-        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -58,12 +53,6 @@ public class VentaJpaController implements Serializable {
                 vendedor = em.getReference(vendedor.getClass(), vendedor.getIdEmpleado());
                 venta.setVendedor(vendedor);
             }
-            List<Pago> attachedPagos = new ArrayList<Pago>();
-            for (Pago pagosPagoToAttach : venta.getPagos()) {
-                pagosPagoToAttach = em.getReference(pagosPagoToAttach.getClass(), pagosPagoToAttach.getIdPago());
-                attachedPagos.add(pagosPagoToAttach);
-            }
-            venta.setPagos(attachedPagos);
             em.persist(venta);
             if (comprador != null) {
                 comprador.getCompras().add(venta);
@@ -72,15 +61,6 @@ public class VentaJpaController implements Serializable {
             if (vendedor != null) {
                 vendedor.getCompras().add(venta);
                 vendedor = em.merge(vendedor);
-            }
-            for (Pago pagosPago : venta.getPagos()) {
-                Venta oldVentaOfPagosPago = pagosPago.getVenta();
-                pagosPago.setVenta(venta);
-                pagosPago = em.merge(pagosPago);
-                if (oldVentaOfPagosPago != null) {
-                    oldVentaOfPagosPago.getPagos().remove(pagosPago);
-                    oldVentaOfPagosPago = em.merge(oldVentaOfPagosPago);
-                }
             }
             em.getTransaction().commit();
         } finally {
@@ -100,8 +80,6 @@ public class VentaJpaController implements Serializable {
             Cliente compradorNew = venta.getComprador();
             Empleado vendedorOld = persistentVenta.getVendedor();
             Empleado vendedorNew = venta.getVendedor();
-            List<Pago> pagosOld = persistentVenta.getPagos();
-            List<Pago> pagosNew = venta.getPagos();
             if (compradorNew != null) {
                 compradorNew = em.getReference(compradorNew.getClass(), compradorNew.getIdCliente());
                 venta.setComprador(compradorNew);
@@ -110,13 +88,6 @@ public class VentaJpaController implements Serializable {
                 vendedorNew = em.getReference(vendedorNew.getClass(), vendedorNew.getIdEmpleado());
                 venta.setVendedor(vendedorNew);
             }
-            List<Pago> attachedPagosNew = new ArrayList<Pago>();
-            for (Pago pagosNewPagoToAttach : pagosNew) {
-                pagosNewPagoToAttach = em.getReference(pagosNewPagoToAttach.getClass(), pagosNewPagoToAttach.getIdPago());
-                attachedPagosNew.add(pagosNewPagoToAttach);
-            }
-            pagosNew = attachedPagosNew;
-            venta.setPagos(pagosNew);
             venta = em.merge(venta);
             if (compradorOld != null && !compradorOld.equals(compradorNew)) {
                 compradorOld.getCompras().remove(venta);
@@ -133,23 +104,6 @@ public class VentaJpaController implements Serializable {
             if (vendedorNew != null && !vendedorNew.equals(vendedorOld)) {
                 vendedorNew.getCompras().add(venta);
                 vendedorNew = em.merge(vendedorNew);
-            }
-            for (Pago pagosOldPago : pagosOld) {
-                if (!pagosNew.contains(pagosOldPago)) {
-                    pagosOldPago.setVenta(null);
-                    pagosOldPago = em.merge(pagosOldPago);
-                }
-            }
-            for (Pago pagosNewPago : pagosNew) {
-                if (!pagosOld.contains(pagosNewPago)) {
-                    Venta oldVentaOfPagosNewPago = pagosNewPago.getVenta();
-                    pagosNewPago.setVenta(venta);
-                    pagosNewPago = em.merge(pagosNewPago);
-                    if (oldVentaOfPagosNewPago != null && !oldVentaOfPagosNewPago.equals(venta)) {
-                        oldVentaOfPagosNewPago.getPagos().remove(pagosNewPago);
-                        oldVentaOfPagosNewPago = em.merge(oldVentaOfPagosNewPago);
-                    }
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -189,11 +143,6 @@ public class VentaJpaController implements Serializable {
             if (vendedor != null) {
                 vendedor.getCompras().remove(venta);
                 vendedor = em.merge(vendedor);
-            }
-            List<Pago> pagos = venta.getPagos();
-            for (Pago pagosPago : pagos) {
-                pagosPago.setVenta(null);
-                pagosPago = em.merge(pagosPago);
             }
             em.remove(venta);
             em.getTransaction().commit();
@@ -249,5 +198,5 @@ public class VentaJpaController implements Serializable {
             em.close();
         }
     }
-
+    
 }
