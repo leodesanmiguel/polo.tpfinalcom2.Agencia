@@ -7,10 +7,13 @@ package polo.logica;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import polo.logica.enumera.MediosDPago;
 
 /**
  *
@@ -20,17 +23,21 @@ import javax.persistence.Table;
 @Table(name = "formadpago")
 public class FormaDPago implements Serializable {
 
+    /**
+     * Este Id se genera solo. Solo se puede recuperar el nro
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idFormaDPago;
 
-    private String medioDPago;
+    @Enumerated(EnumType.ORDINAL)
+    private MediosDPago medioDPago;
 
     public FormaDPago() {
     }
 
-    public FormaDPago(int idFormaDPago, String medioDPago) {
-        this.idFormaDPago = idFormaDPago;
+    public FormaDPago(MediosDPago medioDPago) {
+        //this.idFormaDPago = idFormaDPago;
         this.medioDPago = medioDPago;
     }
 
@@ -38,24 +45,18 @@ public class FormaDPago implements Serializable {
         return idFormaDPago;
     }
 
-    public void setIdFormaDPago(int idFormaDPago) {
-        this.idFormaDPago = idFormaDPago;
-    }
-
-    public String getMedioDPago() {
+    public MediosDPago getMedioDPago() {
         return medioDPago;
     }
 
-    public void setMedioDPago(String medioDPago) {
+    public void setMedioDPago(MediosDPago medioDPago) {
         this.medioDPago = medioDPago;
     }
 
-    @Override
-    public String toString() {
-        return "FormaDPago{" + "idFormaDPago=" + idFormaDPago + ", medioDPago=" + medioDPago + '}';
-    }
-
     /**
+     * TODO faltan los métodos que permite recuperar las comisiones entre otras
+     * cosas.
+     *
      * elegirFormaDPago:
      *
      * Elegir la forma de pago sirve para identificar el modo en que se realiza

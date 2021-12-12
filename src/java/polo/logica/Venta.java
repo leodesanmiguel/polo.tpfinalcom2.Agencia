@@ -8,7 +8,10 @@ package polo.logica;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,6 +23,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import polo.logica.enumera.TipoDContratacion;
 
 /**
  *
@@ -30,7 +34,7 @@ import javax.persistence.TemporalType;
 public class Venta implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idVenta;
 
     @Temporal(TemporalType.DATE)
@@ -39,10 +43,13 @@ public class Venta implements Serializable {
     @Temporal(TemporalType.TIME)
     private Date horaVenta;
 
+    private double importe;
+    private boolean estaPago;
+    
     /**
      * Cada venta tiene un cliente como comprador
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Cliente comprador;
 
     /**
@@ -65,33 +72,32 @@ public class Venta implements Serializable {
      *
      *
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Empleado vendedor;
 
     /**
      * Cada venta se realiza en forma individual o de forma de paquete.
      */
-    private String tipoContratacion;
+    @Enumerated(EnumType.ORDINAL)
+    private TipoDContratacion tipoContratacion;
 
     /**
      * Un paquete puede tener un solo servicio o puede tener varios servicios
      * juntos. De forma que todas las ventas tienen un paquete.<p>
      * Todas las ventas tienen un solo paquete
      */
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Paquete paquete;
 
-    /**
-     * Cada venta puede tenr una lista de pagos, segun la forma de pagar o bien
-     * porque puede ser que el cliente pueda pagar en distintos momentos.
-     */
-    @OneToMany
-    private List<Pago> pagos;
+    
 
     public Venta() {
     }
 
-    public Venta(int idVenta, Date fechaVenta, Date horaVenta, Cliente comprador, Empleado vendedor, String tipoContratacion, Paquete paquete, List<Pago> pagos) {
+    public Venta(int idVenta, Date fechaVenta, Date horaVenta
+            , Cliente comprador, Empleado vendedor
+            , TipoDContratacion tipoContratacion
+            , Paquete paquete) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
@@ -99,8 +105,19 @@ public class Venta implements Serializable {
         this.vendedor = vendedor;
         this.tipoContratacion = tipoContratacion;
         this.paquete = paquete;
-        this.pagos = pagos;
+        
     }
+
+    public double getImporte() {
+        return importe;
+    }
+
+    public boolean isEstaPago() {
+        return estaPago;
+    }
+    
+    
+    
 
     public int getIdVenta() {
         return idVenta;
@@ -142,11 +159,11 @@ public class Venta implements Serializable {
         this.vendedor = vendedor;
     }
 
-    public String getTipoContratacion() {
+    public TipoDContratacion getTipoContratacion() {
         return tipoContratacion;
     }
 
-    public void setTipoContratacion(String tipoContratacion) {
+    public void setTipoContratacion(TipoDContratacion tipoContratacion) {
         this.tipoContratacion = tipoContratacion;
     }
 
@@ -158,17 +175,22 @@ public class Venta implements Serializable {
         this.paquete = paquete;
     }
 
-    public List<Pago> getPagos() {
-        return pagos;
-    }
-
-    public void setPagos(List<Pago> pagos) {
-        this.pagos = pagos;
-    }
+    
 
     @Override
     public String toString() {
-        return "Venta{" + "idVenta=" + idVenta + ", fechaVenta=" + fechaVenta + ", horaVenta=" + horaVenta + ", comprador=" + comprador + ", vendedor=" + vendedor + ", tipoContratacion=" + tipoContratacion + ", paquete=" + paquete + ", pagos=" + pagos + '}';
+        return "Venta{" + "idVenta=" + idVenta + ", fechaVenta=" + fechaVenta 
+                + ", horaVenta=" + horaVenta + ", comprador=" + comprador 
+                + ", vendedor=" + vendedor 
+                + ", tipoContratacion=" + tipoContratacion 
+                + ", paquete=" + paquete + "}";
     }
+    
+    
+    /**
+     * TODO  Falta carlular el importe del paquete y determinar si está pago 
+     *      Enter otras cosas
+     * 
+     */
 
 }

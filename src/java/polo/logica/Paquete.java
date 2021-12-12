@@ -7,11 +7,13 @@ package polo.logica;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 import javax.persistence.Table;
 
@@ -24,7 +26,7 @@ import javax.persistence.Table;
 public class Paquete implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idPaquete;
     /**
      * El costo del paquete es igual a la suma de los costos de los servicios
@@ -47,14 +49,17 @@ public class Paquete implements Serializable {
      *
      * Puede contener un solo servicio o mas de uno.
      */
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Servicio> servicios;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private List<Venta> pedidos;
 
     public Paquete() {
     }
 
-    public Paquete(int idPaquete, double costoPaquete, List<Servicio> servicios) {
-        this.idPaquete = idPaquete;
+    public Paquete(double costoPaquete, List<Servicio> servicios) {
+
         this.costoPaquete = costoPaquete;
         this.servicios = servicios;
     }
@@ -63,8 +68,8 @@ public class Paquete implements Serializable {
         return idPaquete;
     }
 
-    public void setIdPaquete(int idPaquete) {
-        this.idPaquete = idPaquete;
+    public List<Venta> getPedidos() {
+        return pedidos;
     }
 
     public double getCostoPaquete() {
@@ -93,7 +98,9 @@ public class Paquete implements Serializable {
 
     @Override
     public String toString() {
-        return "Paquete{" + "idPaquete=" + idPaquete + ", costoPaquete=" + costoPaquete + ", descuento=" + descuento + ", servicios=" + servicios + '}';
+        return "Paquete{" + "idPaquete=" + idPaquete
+                + ", costoPaquete=" + costoPaquete + ", descuento=" + descuento
+                + ", servicios=" + servicios + '}';
     }
 
 }

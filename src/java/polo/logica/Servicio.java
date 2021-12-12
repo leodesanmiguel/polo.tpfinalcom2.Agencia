@@ -7,7 +7,9 @@ package polo.logica;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,7 +28,7 @@ import javax.persistence.TemporalType;
 public class Servicio implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int codigoServicio;
     private String nombreS;
     private String descripcionS;
@@ -40,29 +42,27 @@ public class Servicio implements Serializable {
     /**
      * Cada Servicio puede estar en uno o mas paquetes.
      */
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Paquete> paquetes;
 
     public Servicio() {
     }
 
-    public Servicio(int codigoServicio, String nombreS, String descripcionS, String destinoS, Date fechaServicio, double costoS, List<Paquete> paquetes) {
-        this.codigoServicio = codigoServicio;
+    public Servicio( String nombreS, String descripcionS, String destinoS, Date fechaServicio, double costoS, List<Paquete> paquetes) {
+        
         this.nombreS = nombreS;
         this.descripcionS = descripcionS;
         this.destinoS = destinoS;
         this.fechaServicio = fechaServicio;
         this.costoS = costoS;
-        this.paquetes = paquetes;
+       
     }
 
     public int getCodigoServicio() {
         return codigoServicio;
     }
 
-    public void setCodigoServicio(int codigoServicio) {
-        this.codigoServicio = codigoServicio;
-    }
+   
 
     public String getNombreS() {
         return nombreS;
@@ -103,14 +103,18 @@ public class Servicio implements Serializable {
     public void setCostoS(double costoS) {
         this.costoS = costoS;
     }
+    
+    
+    /**
+     * Este servicio puede estar en distintos Paquetes
+     */
 
-    public List<Paquete> getPaquetes() {
-        return paquetes;
+    public  List<String> getPaquetes() {
+        List<String> pqtess = new ArrayList<>();
+        return pqtess;
     }
 
-    public void setPaquetes(List<Paquete> paquetes) {
-        this.paquetes = paquetes;
-    }
+    
 
     @Override
     public String toString() {

@@ -23,7 +23,7 @@ import javax.persistence.Table;
 public class Puesto implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idPuesto;
     /**
      * Cada puesto tiene un nombre. Puede derivar en lista de puestos.
@@ -50,8 +50,8 @@ public class Puesto implements Serializable {
     public Puesto() {
     }
 
-    public Puesto(int idPuesto, String mombrePuesto, String tarea, double sueldoBase, List<Empleado> listaEmpleados) {
-        this.idPuesto = idPuesto;
+    public Puesto( String mombrePuesto, String tarea, double sueldoBase, List<Empleado> listaEmpleados) {
+        
         this.mombrePuesto = mombrePuesto;
         this.tarea = tarea;
         this.sueldoBase = sueldoBase;
@@ -62,9 +62,7 @@ public class Puesto implements Serializable {
         return idPuesto;
     }
 
-    public void setIdPuesto(int idPuesto) {
-        this.idPuesto = idPuesto;
-    }
+    
 
     public String getMombrePuesto() {
         return mombrePuesto;
