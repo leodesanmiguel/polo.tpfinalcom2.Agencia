@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package polo.logica;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,6 +14,7 @@ import javax.persistence.Id;
 
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
 import javax.persistence.OneToOne;
 
 import javax.persistence.Table;
@@ -45,7 +42,7 @@ public class Venta implements Serializable {
 
     private double importe;
     private boolean estaPago;
-    
+
     /**
      * Cada venta tiene un cliente como comprador
      */
@@ -55,7 +52,7 @@ public class Venta implements Serializable {
     /**
      * Cada venta tiene un empleado como vendedor
      *
-     * 
+     *
      * https://docs.oracle.com/javaee/7/api/toc.htm
      *
      * Example 1: One-to-Many association using generics
@@ -73,7 +70,7 @@ public class Venta implements Serializable {
      *
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    private Empleado vendedor;
+    private Usuario usuario;
 
     /**
      * Cada venta se realiza en forma individual o de forma de paquete.
@@ -86,26 +83,19 @@ public class Venta implements Serializable {
      * juntos. De forma que todas las ventas tienen un paquete.<p>
      * Todas las ventas tienen un solo paquete
      */
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "venta")
     private Paquete paquete;
-
-    
 
     public Venta() {
     }
 
-    public Venta(int idVenta, Date fechaVenta, Date horaVenta
-            , Cliente comprador, Empleado vendedor
-            , TipoDContratacion tipoContratacion
-            , Paquete paquete) {
+    public Venta(int idVenta, Date fechaVenta, Date horaVenta,
+            Cliente comprador, Usuario usuario) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
         this.comprador = comprador;
-        this.vendedor = vendedor;
-        this.tipoContratacion = tipoContratacion;
-        this.paquete = paquete;
-        
+        this.usuario = usuario;
     }
 
     public double getImporte() {
@@ -115,9 +105,6 @@ public class Venta implements Serializable {
     public boolean isEstaPago() {
         return estaPago;
     }
-    
-    
-    
 
     public int getIdVenta() {
         return idVenta;
@@ -151,12 +138,12 @@ public class Venta implements Serializable {
         this.comprador = comprador;
     }
 
-    public Empleado getVendedor() {
-        return vendedor;
+    public Usuario getVendedor() {
+        return usuario;
     }
 
-    public void setVendedor(Empleado vendedor) {
-        this.vendedor = vendedor;
+    public void setVendedor(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public TipoDContratacion getTipoContratacion() {
@@ -175,22 +162,18 @@ public class Venta implements Serializable {
         this.paquete = paquete;
     }
 
-    
-
     @Override
     public String toString() {
-        return "Venta{" + "idVenta=" + idVenta + ", fechaVenta=" + fechaVenta 
-                + ", horaVenta=" + horaVenta + ", comprador=" + comprador 
-                + ", vendedor=" + vendedor 
-                + ", tipoContratacion=" + tipoContratacion 
+        return "Venta{" + "idVenta=" + idVenta + ", fechaVenta=" + fechaVenta
+                + ", horaVenta=" + horaVenta + ", comprador=" + comprador
+                + ", Usuario=" + usuario
+                + ", tipoContratacion=" + tipoContratacion
                 + ", paquete=" + paquete + "}";
     }
-    
-    
-    /**
-     * TODO  Falta carlular el importe del paquete y determinar si está pago 
-     *      Enter otras cosas
-     * 
-     */
 
+    /**
+     * TODO Falta carlular el importe del paquete y determinar si está pago
+     * Enter otras cosas
+     *
+     */
 }

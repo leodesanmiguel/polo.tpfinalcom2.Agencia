@@ -6,12 +6,20 @@
 package polo.logica;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.List;
+
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
-import javax.persistence.OneToMany;
+
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -26,22 +34,14 @@ import javax.persistence.TemporalType;
 public class Empleado extends Persona implements Serializable {
 
     /**
-     * Los datos de los Empleados son de las personas. En este caso cada
-     * empleado tiene su ID es el orden de los empleados
+     * Los datos de los Empleados son de las personas.
      *
+     * Agregamos una fecha de ingreso suponiendo que eso influye en su sueldo
+     * por la antiguedad.
      *
      */
-    private int idEmpleado;
-
     @Temporal(TemporalType.TIME)
     private Date fechaIngreso;
-
-    /**
-     * El sueldo del empleado es calculado a base del sueldo base segun su
-     * puesto.
-     *
-     */
-    private double sueldo;
 
     /**
      * El puesto empleado es calculado se asigna al momento de cargar un nuevo
@@ -53,73 +53,60 @@ public class Empleado extends Persona implements Serializable {
      * Si llegara a cambiar el puesto de un empleado, iniciaria nuevamente la
      * fecha de ingreso y su correspondiente antiguedad.
      *
-     *
      */
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
     private Puesto suPuesto;
 
     /**
-     * Cada empleado tiene asignado una o mas ventas
+     * El sueldo del empleado es calculado a base del sueldo base segun su
+     * puesto.
      *
-     * https://docs.oracle.com/javaee/7/api/toc.htm
-     *
-     * Example 1: One-to-Many association using generics
-     *
-     * // In Customer class:
-     *
-     * //@OneToMany(cascade=ALL, mappedBy="customer") 
-     * 
-     * public Set<Order> getOrders() { return orders; }
-     *
-     * // In Order class:
-     *
-     * //@ManyToOne //@JoinColumn(name="CUST_ID", nullable=false) 
-     * 
-     * public Customer getCustomer() //{ return customer; }
      */
-    @OneToMany(mappedBy = "empleado")
-    private List<Venta> ventas;
+    private double sueldo;
+
+    /**
+     * El Empleado se asocia con Usuario y se asigna una columna de clave
+     * externa
+     *
+     * ref: ejemplo1
+     * https://docs.oracle.com/javaee/7/api/javax/persistence/OneToOne.html
+     */
+    @OneToOne(optional = false)
+    @JoinColumn(
+            name = "IDUSUARIO", unique = true,
+            nullable = false, updatable = false)
+    private Usuario usuario;
 
     public Empleado() {
     }
 
     public Empleado(Date fechaIngreso,
-            double sueldo,
-            Puesto suPuesto, List<Venta> ventas) {
+            Puesto suPuesto) {
 
         this.fechaIngreso = fechaIngreso;
 
-        this.sueldo = sueldo;
         this.suPuesto = suPuesto;
-        this.ventas = ventas;
-    }
+        if (suPuesto != null) {
+            this.sueldo = calcularSueldo(suPuesto);
+        }
 
-    public int getIdEmpleado() {
-        return idEmpleado;
     }
-
-    public void setIdEmpleado(int idEmpleado) {
-        this.idEmpleado = idEmpleado;
-    }
-
-   
 
     public Date getFechaIngreso() {
         return fechaIngreso;
+
     }
 
     public void setFechaIngreso(Date fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
+        if (suPuesto != null) {
+            this.sueldo = calcularSueldo(suPuesto);
+        }
     }
-
-    
 
     public double getSueldo() {
         return sueldo;
-    }
-
-    public void setSueldo(double sueldo) {
-        this.sueldo = sueldo;
     }
 
     public Puesto getSuPuesto() {
@@ -130,14 +117,39 @@ public class Empleado extends Persona implements Serializable {
         this.suPuesto = suPuesto;
     }
 
-    public List<Venta> getCompras() {
-        return ventas;
+    ////////////////////////////////////////////
+    //  F U N C I O N E S 
+    ////////////////////////////////////////////
+    /**
+     * Suponemos que Calcular el sueldo del empleado es en base al puesto y su
+     * antiguedad. En este caso particular como no esta definido. la antiguedad
+     * desprende un factor que es un x%
+     *
+     * Ej. El facctor es para
+     *
+     * 1 año = 1/100 --> 1%
+     *
+     * 10 años = 10/100 --> 10%.
+     *
+     * Simbolicamente para poder diferenciasr entre el sueldo base y el sueldo
+     * del empleado si su fecha
+     */
+    private double calcularSueldo(Puesto suPuesto) {
+
+        LocalDateTime alta = ld2D(this.getFechaIngreso());
+
+        return suPuesto.getSueldoBase()
+                * ((int) ChronoUnit.YEARS.between(
+                        alta,
+                        LocalDate.now()) / 100);
     }
 
-    public void setCompras(List<Venta> ventas) {
-        this.ventas = ventas;
-    }
+    // Convertir una fecha de LocalDate a Date usando ZoneId del sistema
+    public LocalDateTime ld2D(Date dateToConvert) {
 
-    
+        return dateToConvert.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
 
 }

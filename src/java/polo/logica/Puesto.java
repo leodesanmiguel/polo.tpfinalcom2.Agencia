@@ -7,12 +7,16 @@ package polo.logica;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import polo.logica.enumera.Cargo;
 
 /**
  *
@@ -25,10 +29,12 @@ public class Puesto implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idPuesto;
+
     /**
-     * Cada puesto tiene un nombre. Puede derivar en lista de puestos.
+     * Cada puesto tiene un nombre. Se supone que cada puesto tiene un cargo
      */
-    private String mombrePuesto;
+    @Enumerated(EnumType.ORDINAL)
+    private Cargo cargo;
 
     /**
      * Cada puesto tiene una tarea. Puede revivar en una lista de tareas.
@@ -44,32 +50,30 @@ public class Puesto implements Serializable {
     /**
      * Se podria revisar los emleados que estan en este puesto.
      */
-    @OneToMany
-    private List<Empleado> listaEmpleados;
+    @OneToMany(mappedBy = "puesto", cascade = CascadeType.ALL)
+    private List<Empleado> empleados;
 
     public Puesto() {
     }
 
-    public Puesto( String mombrePuesto, String tarea, double sueldoBase, List<Empleado> listaEmpleados) {
-        
-        this.mombrePuesto = mombrePuesto;
+    public Puesto(Cargo cargo, String tarea, double sueldoBase) {
+
+        this.cargo = cargo;
         this.tarea = tarea;
         this.sueldoBase = sueldoBase;
-        this.listaEmpleados = listaEmpleados;
+
     }
 
     public int getIdPuesto() {
         return idPuesto;
     }
 
-    
-
-    public String getMombrePuesto() {
-        return mombrePuesto;
+    public Cargo getCargo() {
+        return cargo;
     }
 
-    public void setMombrePuesto(String mombrePuesto) {
-        this.mombrePuesto = mombrePuesto;
+    public void setCargo(Cargo cargo) {
+        this.cargo = cargo;
     }
 
     public String getTarea() {
@@ -88,17 +92,12 @@ public class Puesto implements Serializable {
         this.sueldoBase = sueldoBase;
     }
 
-    public List<Empleado> getListaEmpleados() {
-        return listaEmpleados;
+    public List<Empleado> getEmpleados() {
+        return empleados;
     }
 
-    public void setListaEmpleados(List<Empleado> listaEmpleados) {
-        this.listaEmpleados = listaEmpleados;
-    }
-
-    @Override
-    public String toString() {
-        return "Puesto{" + "idPuesto=" + idPuesto + ", mombrePuesto=" + mombrePuesto + ", tarea=" + tarea + ", sueldoBase=" + sueldoBase + ", listaEmpleados=" + listaEmpleados + '}';
+    public void setEmpleados(List<Empleado> empleados) {
+        this.empleados = empleados;
     }
 
 }

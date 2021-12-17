@@ -21,7 +21,7 @@ import javax.persistence.TemporalType;
  * @author Leo Martinez
  */
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Persona implements Serializable {
 
     /**
