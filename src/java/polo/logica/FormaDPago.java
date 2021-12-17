@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package polo.logica;
 
 import java.io.Serializable;
@@ -36,6 +32,12 @@ public class FormaDPago implements Serializable {
     public FormaDPago() {
     }
 
+    public FormaDPago(int idFormaDPago, MediosDPago medioDPago) {
+        this.idFormaDPago = idFormaDPago;
+        this.medioDPago = medioDPago;
+    }
+
+    
     public FormaDPago(MediosDPago medioDPago) {
         //this.idFormaDPago = idFormaDPago;
         this.medioDPago = medioDPago;

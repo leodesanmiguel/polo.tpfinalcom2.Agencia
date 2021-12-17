@@ -1,12 +1,8 @@
 package polo.logica;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-
 import javax.persistence.Table;
 
 /**
@@ -70,23 +65,21 @@ public class Paquete implements Serializable {
     }
 
     public Paquete(double costoPaquete, double descuento,
-             List<Servicio> servicios) {
+            List<Servicio> servicios) {
         this.costoPaquete = costoPaquete;
         this.descuento = descuento;
         this.servicios = servicios;
     }
 
+    
+    
     public int getIdPaquete() {
         return idPaquete;
     }
 
-   
-
     public double getCostoPaquete() {
         return costoPaquete;
     }
-
-
 
     public double getDescuento() {
         return descuento;
@@ -97,23 +90,34 @@ public class Paquete implements Serializable {
     }
 
     public List<Servicio> getServicios() {
-        
-        
+
         return servicios;
     }
 
+    /**
+     * El paquete contiene unalista de servicios.Cuando se le asigna los
+     * servicios se calcula el costo del paquete También se supone que todos los
+     * paquetes que tengan mas de un servicio se asigna un descuento que no
+     * indicarlo se le asigna un 10%
+     *
+     *
+     * @param servicios
+     */
     public void setServicios(List<Servicio> servicios) {
         // al asignar los servicios se debe consignar el costo del paquete
-        
-        double costo=0;
-        List<Servicio> sserv = new ArrayList<>();
-        
-        for (Servicio s: servicios){
 
-            
+        double costo = 0;
+
+        for (Servicio s : servicios) {
+            costo += s.getCostoS();
+            if (this.descuento == 0) {
+                this.descuento = 10 / 100;
+            }
+            if (servicios.size() > 1) {
+                costo *= this.descuento;
+            }
         }
-        
-        
+        this.costoPaquete = costo;
         this.servicios = servicios;
     }
 

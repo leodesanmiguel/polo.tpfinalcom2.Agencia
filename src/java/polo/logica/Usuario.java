@@ -8,7 +8,6 @@ package polo.logica;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -73,6 +72,8 @@ public class Usuario implements Serializable {
         this.activo = activo;
 
     }
+    
+    
 
     public int getIdUser() {
         return idUser;

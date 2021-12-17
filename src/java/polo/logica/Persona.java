@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package polo.logica;
 
 import java.io.Serializable;
@@ -51,7 +47,9 @@ public class Persona implements Serializable {
 
     }
 
-    public Persona(String nombreP, String apellidoP, String direccionP, int dni, Date fechaNacio, String nacionalidad, String celular, String email) {
+    public Persona(String nombreP, String apellidoP
+            , String direccionP, int dni, Date fechaNacio
+            , String nacionalidad, String celular, String email) {
         //this.idCliente = idCliente;
         this.nombreP = nombreP;
         this.apellidoP = apellidoP;
@@ -63,6 +61,15 @@ public class Persona implements Serializable {
         this.email = email;
     }
 
+    public int getIdPersona() {
+        return idPersona;
+    }
+
+    public void setIdPersona(int idPersona) {
+        this.idPersona = idPersona;
+    }
+
+    
     public int getIdCliente() {
         return idPersona;
     }

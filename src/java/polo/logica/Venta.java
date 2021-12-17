@@ -1,4 +1,3 @@
-
 package polo.logica;
 
 import java.io.Serializable;
@@ -11,9 +10,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+
 
 import javax.persistence.OneToOne;
 
@@ -46,30 +46,17 @@ public class Venta implements Serializable {
     /**
      * Cada venta tiene un cliente como comprador
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "IDPERSONA", nullable = false)
     private Cliente comprador;
 
     /**
-     * Cada venta tiene un empleado como vendedor
-     *
-     *
-     * https://docs.oracle.com/javaee/7/api/toc.htm
-     *
-     * Example 1: One-to-Many association using generics
-     *
-     * // In Customer class:
-     *
-     * //@OneToMany(cascade=ALL, mappedBy="customer") public Set<Order>
-     * //getOrders() { return orders; }
-     *
-     * In Order class:
-     *
-     * //@ManyToOne //@JoinColumn(name="CUST_ID", nullable=false) public
-     * //Customer getCustomer() //{ return customer; }
-     *
+     * Cada venta tiene un usuario que es empleado y tiene la funcion de
+     * vendedor
      *
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "IDUSUARIO", nullable = false)
     private Usuario usuario;
 
     /**
@@ -89,29 +76,20 @@ public class Venta implements Serializable {
     public Venta() {
     }
 
-    public Venta(int idVenta, Date fechaVenta, Date horaVenta,
-            Cliente comprador, Usuario usuario) {
-        this.idVenta = idVenta;
+    public Venta(Date fechaVenta, Date horaVenta,
+            Cliente comprador, Usuario usuario,
+            Paquete paquete) {
+
         this.fechaVenta = fechaVenta;
         this.horaVenta = horaVenta;
         this.comprador = comprador;
         this.usuario = usuario;
+        this.paquete = paquete;
     }
 
-    public double getImporte() {
-        return importe;
-    }
-
-    public boolean isEstaPago() {
-        return estaPago;
-    }
-
+    
     public int getIdVenta() {
         return idVenta;
-    }
-
-    public void setIdVenta(int idVenta) {
-        this.idVenta = idVenta;
     }
 
     public Date getFechaVenta() {
@@ -130,6 +108,22 @@ public class Venta implements Serializable {
         this.horaVenta = horaVenta;
     }
 
+    public double getImporte() {
+        return importe;
+    }
+
+    public void setImporte(double importe) {
+        this.importe = importe;
+    }
+
+    public boolean isEstaPago() {
+        return estaPago;
+    }
+
+    public void setEstaPago(boolean estaPago) {
+        this.estaPago = estaPago;
+    }
+
     public Cliente getComprador() {
         return comprador;
     }
@@ -138,11 +132,11 @@ public class Venta implements Serializable {
         this.comprador = comprador;
     }
 
-    public Usuario getVendedor() {
+    public Usuario getUsuario() {
         return usuario;
     }
 
-    public void setVendedor(Usuario usuario) {
+    public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
 
@@ -150,7 +144,15 @@ public class Venta implements Serializable {
         return tipoContratacion;
     }
 
+    /**
+     * Un paquete tiene un tipo de contratacion dependiendo de cada servicio
+     * puede ser contratado de dos maneras posibles: De forma individual. En un
+     * paquete turístico (con otros servicios)
+     *
+     * @param tipoContratacion
+     */
     public void setTipoContratacion(TipoDContratacion tipoContratacion) {
+        
         this.tipoContratacion = tipoContratacion;
     }
 
