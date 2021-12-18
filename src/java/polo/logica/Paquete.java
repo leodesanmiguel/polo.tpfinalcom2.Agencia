@@ -56,11 +56,11 @@ public class Paquete implements Serializable {
      *
      *
      * Puede contener un solo servicio o mas de uno.
+     *
+     * @ManyToOne(optional = false)
+     * @JoinColumn(name = "IDVENTA", nullable = false, updatable = false)
+     * private List<Venta> pedidos;
      */
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idPaquete", nullable = false, updatable = false)
-    private List<Venta> pedidos;
-
     public Paquete() {
     }
 
@@ -71,8 +71,6 @@ public class Paquete implements Serializable {
         this.servicios = servicios;
     }
 
-    
-    
     public int getIdPaquete() {
         return idPaquete;
     }
@@ -121,12 +119,6 @@ public class Paquete implements Serializable {
         this.servicios = servicios;
     }
 
-    public List<Venta> getPedidos() {
-        return pedidos;
-    }
-
-    public void setPedidos(List<Venta> pedidos) {
-        this.pedidos = pedidos;
-    }
+    
 
 }

@@ -1,9 +1,10 @@
 package polo.logica;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,6 +33,7 @@ public class Venta implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="IDVENTA")
     private int idVenta;
 
     @Temporal(TemporalType.DATE)
@@ -70,7 +72,8 @@ public class Venta implements Serializable {
      * juntos. De forma que todas las ventas tienen un paquete.<p>
      * Todas las ventas tienen un solo paquete
      */
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "venta")
+    @ManyToOne(targetEntity = Paquete.class)
+    @JoinColumn(name = "paqueteId")
     private Paquete paquete;
 
     public Venta() {

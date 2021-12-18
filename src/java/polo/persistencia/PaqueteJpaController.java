@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package polo.persistencia;
 
 import java.io.Serializable;
@@ -5,20 +10,18 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import polo.logica.Venta;
+import polo.logica.Servicio;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import polo.logica.Paquete;
-import polo.logica.Servicio;
-import polo.persistencia.exceptions.IllegalOrphanException;
 import polo.persistencia.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Leo Martinez
+ * @author profl
  */
 public class PaqueteJpaController implements Serializable {
 
@@ -35,37 +38,14 @@ public class PaqueteJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Paquete paquete) throws IllegalOrphanException {
-        if (paquete.getPedidos() == null) {
-            paquete.setPedidos(new ArrayList<Venta>());
-        }
+    public void create(Paquete paquete) {
         if (paquete.getServicios() == null) {
             paquete.setServicios(new ArrayList<Servicio>());
-        }
-        List<String> illegalOrphanMessages = null;
-        Venta pedidosVentaOrphanCheck = (Venta) paquete.getPedidos();
-        if (pedidosVentaOrphanCheck != null) {
-            Paquete oldPaqueteOfPedidosVenta = pedidosVentaOrphanCheck.getPaquete();
-            if (oldPaqueteOfPedidosVenta != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<>();
-                }
-                illegalOrphanMessages.add("The Venta " + pedidosVentaOrphanCheck + " already has an item of type Paquete whose pedidosVenta column cannot be null. Please make another selection for the pedidosVenta field.");
-            }
-        }
-        if (illegalOrphanMessages != null) {
-            throw new IllegalOrphanException(illegalOrphanMessages);
         }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            List<Venta> attachedPedidos = new ArrayList<Venta>();
-            for (Venta pedidosVentaToAttach : paquete.getPedidos()) {
-                pedidosVentaToAttach = em.getReference(pedidosVentaToAttach.getClass(), pedidosVentaToAttach.getIdVenta());
-                attachedPedidos.add(pedidosVentaToAttach);
-            }
-            paquete.setPedidos(attachedPedidos);
             List<Servicio> attachedServicios = new ArrayList<Servicio>();
             for (Servicio serviciosServicioToAttach : paquete.getServicios()) {
                 serviciosServicioToAttach = em.getReference(serviciosServicioToAttach.getClass(), serviciosServicioToAttach.getIdServicio());
@@ -73,10 +53,6 @@ public class PaqueteJpaController implements Serializable {
             }
             paquete.setServicios(attachedServicios);
             em.persist(paquete);
-            for (Venta pedidosVenta : paquete.getPedidos()) {
-                pedidosVenta.setPaquete(paquete);
-                pedidosVenta = em.merge(pedidosVenta);
-            }
             for (Servicio serviciosServicio : paquete.getServicios()) {
                 serviciosServicio.getPaquetes().add(paquete);
                 serviciosServicio = em.merge(serviciosServicio);
@@ -95,17 +71,8 @@ public class PaqueteJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Paquete persistentPaquete = em.find(Paquete.class, paquete.getIdPaquete());
-            List<Venta> pedidosOld = persistentPaquete.getPedidos();
-            List<Venta> pedidosNew = paquete.getPedidos();
             List<Servicio> serviciosOld = persistentPaquete.getServicios();
             List<Servicio> serviciosNew = paquete.getServicios();
-            List<Venta> attachedPedidosNew = new ArrayList<Venta>();
-            for (Venta pedidosNewVentaToAttach : pedidosNew) {
-                pedidosNewVentaToAttach = em.getReference(pedidosNewVentaToAttach.getClass(), pedidosNewVentaToAttach.getIdVenta());
-                attachedPedidosNew.add(pedidosNewVentaToAttach);
-            }
-            pedidosNew = attachedPedidosNew;
-            paquete.setPedidos(pedidosNew);
             List<Servicio> attachedServiciosNew = new ArrayList<Servicio>();
             for (Servicio serviciosNewServicioToAttach : serviciosNew) {
                 serviciosNewServicioToAttach = em.getReference(serviciosNewServicioToAttach.getClass(), serviciosNewServicioToAttach.getIdServicio());
@@ -114,23 +81,6 @@ public class PaqueteJpaController implements Serializable {
             serviciosNew = attachedServiciosNew;
             paquete.setServicios(serviciosNew);
             paquete = em.merge(paquete);
-            for (Venta pedidosOldVenta : pedidosOld) {
-                if (!pedidosNew.contains(pedidosOldVenta)) {
-                    pedidosOldVenta.setPaquete(null);
-                    pedidosOldVenta = em.merge(pedidosOldVenta);
-                }
-            }
-            for (Venta pedidosNewVenta : pedidosNew) {
-                if (!pedidosOld.contains(pedidosNewVenta)) {
-                    Paquete oldPaqueteOfPedidosNewVenta = pedidosNewVenta.getPaquete();
-                    pedidosNewVenta.setPaquete(paquete);
-                    pedidosNewVenta = em.merge(pedidosNewVenta);
-                    if (oldPaqueteOfPedidosNewVenta != null && !oldPaqueteOfPedidosNewVenta.equals(paquete)) {
-                        oldPaqueteOfPedidosNewVenta.getPedidos().remove(pedidosNewVenta);
-                        oldPaqueteOfPedidosNewVenta = em.merge(oldPaqueteOfPedidosNewVenta);
-                    }
-                }
-            }
             for (Servicio serviciosOldServicio : serviciosOld) {
                 if (!serviciosNew.contains(serviciosOldServicio)) {
                     serviciosOldServicio.getPaquetes().remove(paquete);
@@ -171,11 +121,6 @@ public class PaqueteJpaController implements Serializable {
                 paquete.getIdPaquete();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The paquete with id " + id + " no longer exists.", enfe);
-            }
-            List<Venta> pedidos = paquete.getPedidos();
-            for (Venta pedidosVenta : pedidos) {
-                pedidosVenta.setPaquete(null);
-                pedidosVenta = em.merge(pedidosVenta);
             }
             List<Servicio> servicios = paquete.getServicios();
             for (Servicio serviciosServicio : servicios) {
