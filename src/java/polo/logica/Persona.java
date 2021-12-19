@@ -16,7 +16,7 @@ import javax.persistence.TemporalType;
  *
  * @author Leo Martinez
  */
-@Entity
+//@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Persona implements Serializable {
 

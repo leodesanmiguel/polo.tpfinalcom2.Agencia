@@ -199,10 +199,14 @@ public class ControladoraPersistencia {
      *
      * @param emple
      * @param usua
+     * @return 
      */
-    public void crearEmpleado(Empleado emple, Usuario usua) {
-
+    public int crearEmpleado(Empleado emple, Usuario usua) {
+        int idUsr = 0;
         try {
+            System.out.println("\n++++++ Creando Empleado +++++++++++++++");
+            System.out.println("\n ----> Empleado  que viene..: " + emple);
+            System.out.println("\n       Usuario que viene....: " + usua);
 
             List<Empleado> xxs = empleJPA.findEmpleadoEntities();
             boolean cc = false;
@@ -230,55 +234,37 @@ public class ControladoraPersistencia {
                         break;
                     }
                 }
-                if (!existeUsuario(usua)){                 
+                if (!existeUsuario(usua)) {
                     userJPA.create(usua);
                 }
                 em.setUsuario(usua);
-                System.out.println("\n Empleado con USUARIO: " + em );
+                System.out.println("\n Empleado con USUARIO: " + em);
                 empleJPA.create(em);
+
+                List<Usuario> uss = userJPA.findUsuarioEntities();
+                for (Usuario u : uss) {
+                    if (usua.equals(u)) {
+                        idUsr = u.getIdUser();
+                    }
+                }
+                return idUsr;
+
             }
 
         } catch (IllegalOrphanException e) {
             System.out.println("\n****"
                     + "********  No se Creo el empleado con usuario .....\n");
         }
-/////////////////////////////////////////////////////////////////
-//        try {
-//
-//            List<Usuario> xxs = userJPA.findUsuarioEntities();
-//            boolean cc = false;
-//
-//            for (Usuario x : xxs) {
-//
-//                if (x.getNombreUsr().equals(usua.getNombreUsr())) {
-//                    cc = true;
-//                    break;
-//                }
-//            }
-//            if (!cc) {
-//                Usuario em = new Usuario();
-//                em.setActivo(true);
-//                em.setAltaU(emple.getFechaIngreso());
-//                em.setNombreUsr(usua.getNombreUsr());
-//                em.setPassword(usua.getPassword());
-//                em.setEmpleado(emple);
-//                userJPA.create(em);
-//            }
-//
-//        } catch (Exception e) {
-//            System.out.println("\n****"
-//                    + "********  No se Creo el empleado con usuario .....\n");
-//        }
+        return 0;
 
     }
-    
-    
-    public boolean existeUsuario(Usuario usua){
-        boolean existe=false;
+
+    public boolean existeUsuario(Usuario usua) {
+        boolean existe = false;
         List<Usuario> uss = userJPA.findUsuarioEntities();
-        
-        for (Usuario u: uss){ 
-            if (u.getNombreUsr().equals(usua.getNombreUsr()) || u.getPassword().equals(usua.getPassword())){
+
+        for (Usuario u : uss) {
+            if (u.getNombreUsr().equals(usua.getNombreUsr()) || u.getPassword().equals(usua.getPassword())) {
                 System.out.println("El usuario EXISTE !!" + u);
                 existe = true;
                 break;
@@ -286,7 +272,6 @@ public class ControladoraPersistencia {
         }
         return existe;
     }
-    
 
     /**
      * Trae Usuarios: solo los indicados por usr

@@ -21,22 +21,26 @@ public class Controladora {
     }
 
     public boolean verificarJefe(String usuario, String password) {
-        
+
         return false;
     }
 
     public boolean verificarVendedor(String usuario, String password) {
-        
+
         return false;
     }
 
     public boolean verificarUsuario(String usuario, String password) {
-        
+
         return false;
     }
 
-    public void crearAdmin(Persona pers, String admin, Usuario usua) {
-        
+    public int crearAdmin(Persona pers, String admin, Usuario usua) {
+
+        System.out.println("\n++++++ Creando ADMIN +++++++++++++++");
+        System.out.println("\n ----> Peresona  que viene..: " + pers);
+        System.out.println("\n       Usuario que viene....: " + usua);
+
         Empleado emple = new Empleado();
         emple.setApellidoP(pers.getApellidoP());
         emple.setCelular(pers.getCelular());
@@ -46,14 +50,14 @@ public class Controladora {
         emple.setNacionalidad(pers.getNacionalidad());
         emple.setFechaIngreso(pers.getFechaNacio());
         emple.setNombreP(pers.getNombreP());
-        
-        ctrlJPA.crearEmpleado(emple, usua);
- 
+
+        return ctrlJPA.crearEmpleado(emple, usua);
+
     }
 
-    public List<Usuario> traerJefes(){
+    public List<Usuario> traerJefes() {
         // En este caso trae los JEFES
         return ctrlJPA.traerUsuarios("Jefe");
     }
-    
+
 }
