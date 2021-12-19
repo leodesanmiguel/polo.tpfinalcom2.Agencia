@@ -201,8 +201,8 @@ public class ControladoraPersistencia {
      * @param usua
      * @return 
      */
-    public int crearEmpleado(Empleado emple, Usuario usua) {
-        int idUsr = 0;
+    public Usuario crearEmpleado(Empleado emple, Usuario usua) {
+        Usuario usr = new Usuario();
         try {
             System.out.println("\n++++++ Creando Empleado +++++++++++++++");
             System.out.println("\n ----> Empleado  que viene..: " + emple);
@@ -244,10 +244,10 @@ public class ControladoraPersistencia {
                 List<Usuario> uss = userJPA.findUsuarioEntities();
                 for (Usuario u : uss) {
                     if (usua.equals(u)) {
-                        idUsr = u.getIdUser();
+                        usr = u;
                     }
                 }
-                return idUsr;
+                return usr;
 
             }
 
@@ -255,7 +255,7 @@ public class ControladoraPersistencia {
             System.out.println("\n****"
                     + "********  No se Creo el empleado con usuario .....\n");
         }
-        return 0;
+        return null;
 
     }
 

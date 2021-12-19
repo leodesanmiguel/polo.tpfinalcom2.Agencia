@@ -34,6 +34,8 @@
         <%
             String user = (String) request.getSession().getAttribute("user");
             String pass = (String) request.getSession().getAttribute("pass");
+            
+            
             String nombrePer = (String) request.getSession().getAttribute("nombrePer");
             String apellidoPer = (String) request.getSession().getAttribute("apellidoPer");
             String domicilioPer = (String) request.getSession().getAttribute("domicilioPer");

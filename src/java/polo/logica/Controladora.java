@@ -35,7 +35,7 @@ public class Controladora {
         return false;
     }
 
-    public int crearAdmin(Persona pers, String admin, Usuario usua) {
+    public Usuario crearAdmin(Persona pers, String admin, Usuario usua) {
 
         System.out.println("\n++++++ Creando ADMIN +++++++++++++++");
         System.out.println("\n ----> Peresona  que viene..: " + pers);
@@ -50,7 +50,7 @@ public class Controladora {
         emple.setNacionalidad(pers.getNacionalidad());
         emple.setFechaIngreso(pers.getFechaNacio());
         emple.setNombreP(pers.getNombreP());
-
+        // returno el id del usuario
         return ctrlJPA.crearEmpleado(emple, usua);
 
     }
@@ -58,6 +58,10 @@ public class Controladora {
     public List<Usuario> traerJefes() {
         // En este caso trae los JEFES
         return ctrlJPA.traerUsuarios("Jefe");
+    }
+
+    public Empleado traeAdmin(Usuario usr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

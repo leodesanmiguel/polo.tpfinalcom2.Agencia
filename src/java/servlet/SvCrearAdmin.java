@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import polo.logica.Controladora;
+import polo.logica.Empleado;
 import polo.logica.Persona;
 import polo.logica.Usuario;
 
@@ -58,18 +59,21 @@ public class SvCrearAdmin extends HttpServlet {
         usua.setNombreUsr((String) request.getSession().getAttribute("user"));
         usua.setPassword((String) request.getSession().getAttribute("pass"));
 
-        ctrl.crearAdmin(pers, "admin", usua);
+        Usuario usr = ctrl.crearAdmin(pers, "admin", usua);
+        Empleado empl = usr.getEmpleado();
         
+        System.out.println("Empleado traido a SvCrearAdmin " + empl);
         
-        request.getSession().setAttribute("user", usua.getNombreUsr());
-        request.getSession().setAttribute("pass", usua.getPassword());
-        request.getSession().setAttribute("nombrePer", pers.getNombreP());
-        request.getSession().setAttribute("apellidoPer", pers.getApellidoP());
-        request.getSession().setAttribute("domicilioPer", pers.getDireccionP());
-        request.getSession().setAttribute("dniPer", pers.getDni());
-        request.getSession().setAttribute("nacionalPer", pers.getNacionalidad());
-        request.getSession().setAttribute("celularPer", pers.getCelular());
-        request.getSession().setAttribute("emailPer", pers.getEmail());
+        request.getSession().setAttribute("user", usr.getNombreUsr());
+        request.getSession().setAttribute("pass", usr.getPassword());
+
+        request.getSession().setAttribute("nombrePer", empl.getNombreP());
+        request.getSession().setAttribute("apellidoPer", empl.getApellidoP());
+        request.getSession().setAttribute("domicilioPer", empl.getDireccionP());
+        request.getSession().setAttribute("dniPer", empl.getDni());
+        request.getSession().setAttribute("nacionalPer", empl.getNacionalidad());
+        request.getSession().setAttribute("celularPer", empl.getCelular());
+        request.getSession().setAttribute("emailPer", empl.getEmail());
 
         response.sendRedirect("mostrarAdmin.jsp");
 

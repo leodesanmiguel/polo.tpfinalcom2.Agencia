@@ -16,7 +16,7 @@ import javax.persistence.TemporalType;
  *
  * @author Leo Martinez
  */
-//@Entity
+@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Persona implements Serializable {
 
@@ -136,6 +136,14 @@ public class Persona implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "Persona{" + "idPersona=" + idPersona + ", nombreP=" + nombreP + ", apellidoP=" + apellidoP 
+                + "\n direccionP=" + direccionP + ", dni=" + dni 
+                + ", fechaNacio=" + fechaNacio + ", nacionalidad=" + nacionalidad 
+                + ", celular=" + celular + ", email=" + email + '}';
     }
 
 }
