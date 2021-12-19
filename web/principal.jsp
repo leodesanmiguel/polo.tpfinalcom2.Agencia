@@ -11,7 +11,7 @@
 	Twitter: http://twitter.com/fh5co
 	URL: http://freehtml5.co
 -->
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">

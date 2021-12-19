@@ -46,8 +46,8 @@ public class Puesto implements Serializable {
     /**
      * Se podria revisar los emleados que estan en este puesto.
      */
-    @OneToMany(mappedBy = "puesto", cascade = CascadeType.ALL)
-    private List<Empleado> empleados;
+    @OneToMany
+    private List<Empleado> empleado;
 
     public Puesto() {
     }
@@ -90,12 +90,17 @@ public class Puesto implements Serializable {
         this.sueldoBase = sueldoBase;
     }
 
-    public List<Empleado> getEmpleados() {
-        return empleados;
+    public List<Empleado> getEmpleado() {
+        return empleado;
     }
 
-    public void setEmpleados(List<Empleado> empleados) {
-        this.empleados = empleados;
+    public void setEmpleado(List<Empleado> empleado) {
+        this.empleado = empleado;
+    }
+
+    @Override
+    public String toString() {
+        return "Puesto{" + "idPuesto=" + idPuesto + ", cargo=" + cargo + ", sueldoBase=" + sueldoBase + '}';
     }
 
 }

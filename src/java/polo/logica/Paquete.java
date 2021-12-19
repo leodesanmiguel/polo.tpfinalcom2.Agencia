@@ -6,10 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
+
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+
 import javax.persistence.Table;
 
 /**
@@ -48,8 +48,8 @@ public class Paquete implements Serializable {
      * Como se pide que las ventas tengan un servicio o un paquete, puede un
      * paquete tener un solo servicio o puede tener una lista de servicios
      */
+    
     @ManyToMany
-    @JoinTable(name = "PAQUETE_SERVICIO")
     private List<Servicio> servicios;
 
     /**

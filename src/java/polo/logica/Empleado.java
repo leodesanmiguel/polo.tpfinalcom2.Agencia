@@ -50,8 +50,7 @@ public class Empleado extends Persona implements Serializable {
      * fecha de ingreso y su correspondiente antiguedad.
      *
      */
-    @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
+    @ManyToOne
     private Puesto suPuesto;
 
     /**
@@ -68,10 +67,11 @@ public class Empleado extends Persona implements Serializable {
      * ref: ejemplo1
      * https://docs.oracle.com/javaee/7/api/javax/persistence/OneToOne.html
      */
-    @OneToOne(optional = false)
-    @JoinColumn(
-            name = "IDUSUARIO", unique = true,
-            nullable = false, updatable = false)
+//    @OneToOne(optional = false)
+//    @JoinColumn(
+//            name = "IDUSUARIO", unique = true,
+//            nullable = false, updatable = false)
+    @OneToOne
     private Usuario usuario;
 
     public Empleado() {
@@ -156,6 +156,11 @@ public class Empleado extends Persona implements Serializable {
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
+    }
+
+    @Override
+    public String toString() {
+        return "Empleado{" + "fechaIngreso=" + fechaIngreso + ", suPuesto=" + suPuesto + ", sueldo=" + sueldo + '}';
     }
 
 }

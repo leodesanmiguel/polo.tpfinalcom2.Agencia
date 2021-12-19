@@ -1,20 +1,27 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package polo.persistencia;
 
 import java.io.Serializable;
+import javax.persistence.Query;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import polo.logica.Empleado;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import polo.logica.Puesto;
 import polo.persistencia.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Leo Martinez
+ * @author profl
  */
 public class PuestoJpaController implements Serializable {
 
@@ -22,8 +29,8 @@ public class PuestoJpaController implements Serializable {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
-
-    public PuestoJpaController() {
+  
+    public PuestoJpaController(){
         this.emf = Persistence.createEntityManagerFactory("TPFinalv2PU");
     }
 
@@ -32,11 +39,29 @@ public class PuestoJpaController implements Serializable {
     }
 
     public void create(Puesto puesto) {
+        if (puesto.getEmpleado() == null) {
+            puesto.setEmpleado(new ArrayList<Empleado>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Empleado> attachedEmpleado = new ArrayList<Empleado>();
+            for (Empleado empleadoEmpleadoToAttach : puesto.getEmpleado()) {
+                empleadoEmpleadoToAttach = em.getReference(empleadoEmpleadoToAttach.getClass(), empleadoEmpleadoToAttach.getIdPersona());
+                attachedEmpleado.add(empleadoEmpleadoToAttach);
+            }
+            puesto.setEmpleado(attachedEmpleado);
             em.persist(puesto);
+            for (Empleado empleadoEmpleado : puesto.getEmpleado()) {
+                Puesto oldSuPuestoOfEmpleadoEmpleado = empleadoEmpleado.getSuPuesto();
+                empleadoEmpleado.setSuPuesto(puesto);
+                empleadoEmpleado = em.merge(empleadoEmpleado);
+                if (oldSuPuestoOfEmpleadoEmpleado != null) {
+                    oldSuPuestoOfEmpleadoEmpleado.getEmpleado().remove(empleadoEmpleado);
+                    oldSuPuestoOfEmpleadoEmpleado = em.merge(oldSuPuestoOfEmpleadoEmpleado);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -50,7 +75,34 @@ public class PuestoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Puesto persistentPuesto = em.find(Puesto.class, puesto.getIdPuesto());
+            List<Empleado> empleadoOld = persistentPuesto.getEmpleado();
+            List<Empleado> empleadoNew = puesto.getEmpleado();
+            List<Empleado> attachedEmpleadoNew = new ArrayList<Empleado>();
+            for (Empleado empleadoNewEmpleadoToAttach : empleadoNew) {
+                empleadoNewEmpleadoToAttach = em.getReference(empleadoNewEmpleadoToAttach.getClass(), empleadoNewEmpleadoToAttach.getIdPersona());
+                attachedEmpleadoNew.add(empleadoNewEmpleadoToAttach);
+            }
+            empleadoNew = attachedEmpleadoNew;
+            puesto.setEmpleado(empleadoNew);
             puesto = em.merge(puesto);
+            for (Empleado empleadoOldEmpleado : empleadoOld) {
+                if (!empleadoNew.contains(empleadoOldEmpleado)) {
+                    empleadoOldEmpleado.setSuPuesto(null);
+                    empleadoOldEmpleado = em.merge(empleadoOldEmpleado);
+                }
+            }
+            for (Empleado empleadoNewEmpleado : empleadoNew) {
+                if (!empleadoOld.contains(empleadoNewEmpleado)) {
+                    Puesto oldSuPuestoOfEmpleadoNewEmpleado = empleadoNewEmpleado.getSuPuesto();
+                    empleadoNewEmpleado.setSuPuesto(puesto);
+                    empleadoNewEmpleado = em.merge(empleadoNewEmpleado);
+                    if (oldSuPuestoOfEmpleadoNewEmpleado != null && !oldSuPuestoOfEmpleadoNewEmpleado.equals(puesto)) {
+                        oldSuPuestoOfEmpleadoNewEmpleado.getEmpleado().remove(empleadoNewEmpleado);
+                        oldSuPuestoOfEmpleadoNewEmpleado = em.merge(oldSuPuestoOfEmpleadoNewEmpleado);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -79,6 +131,11 @@ public class PuestoJpaController implements Serializable {
                 puesto.getIdPuesto();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The puesto with id " + id + " no longer exists.", enfe);
+            }
+            List<Empleado> empleado = puesto.getEmpleado();
+            for (Empleado empleadoEmpleado : empleado) {
+                empleadoEmpleado.setSuPuesto(null);
+                empleadoEmpleado = em.merge(empleadoEmpleado);
             }
             em.remove(puesto);
             em.getTransaction().commit();
@@ -134,5 +191,5 @@ public class PuestoJpaController implements Serializable {
             em.close();
         }
     }
-
+    
 }

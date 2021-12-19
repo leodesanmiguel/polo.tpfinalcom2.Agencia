@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package polo.persistencia;
 
 import java.io.Serializable;
@@ -5,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import polo.logica.Empleado;
 import polo.logica.Venta;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +23,7 @@ import polo.persistencia.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Leo Martinez
+ * @author profl
  */
 public class UsuarioJpaController implements Serializable {
 
@@ -25,8 +31,8 @@ public class UsuarioJpaController implements Serializable {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
-
-    public UsuarioJpaController() {
+  
+    public UsuarioJpaController(){
         this.emf = Persistence.createEntityManagerFactory("TPFinalv2PU");
     }
 
@@ -36,19 +42,33 @@ public class UsuarioJpaController implements Serializable {
 
     public void create(Usuario usuario) {
         if (usuario.getVentas() == null) {
-            usuario.setVentas(new ArrayList<Venta>());
+            usuario.setVentas(new ArrayList<>());
         }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            List<Venta> attachedVentas = new ArrayList<Venta>();
+            Empleado empleado = usuario.getEmpleado();
+            if (empleado != null) {
+                empleado = em.getReference(empleado.getClass(), empleado.getIdPersona());
+                usuario.setEmpleado(empleado);
+            }
+            List<Venta> attachedVentas = new ArrayList<>();
             for (Venta ventasVentaToAttach : usuario.getVentas()) {
                 ventasVentaToAttach = em.getReference(ventasVentaToAttach.getClass(), ventasVentaToAttach.getIdVenta());
                 attachedVentas.add(ventasVentaToAttach);
             }
             usuario.setVentas(attachedVentas);
             em.persist(usuario);
+            if (empleado != null) {
+                Usuario oldUsuarioOfEmpleado = empleado.getUsuario();
+                if (oldUsuarioOfEmpleado != null) {
+                    oldUsuarioOfEmpleado.setEmpleado(null);
+                    oldUsuarioOfEmpleado = em.merge(oldUsuarioOfEmpleado);
+                }
+                empleado.setUsuario(usuario);
+                empleado = em.merge(empleado);
+            }
             for (Venta ventasVenta : usuario.getVentas()) {
                 Usuario oldUsuarioOfVentasVenta = ventasVenta.getUsuario();
                 ventasVenta.setUsuario(usuario);
@@ -72,9 +92,17 @@ public class UsuarioJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Usuario persistentUsuario = em.find(Usuario.class, usuario.getIdUser());
+            Empleado empleadoOld = persistentUsuario.getEmpleado();
+            Empleado empleadoNew = usuario.getEmpleado();
             List<Venta> ventasOld = persistentUsuario.getVentas();
             List<Venta> ventasNew = usuario.getVentas();
             List<String> illegalOrphanMessages = null;
+            if (empleadoOld != null && !empleadoOld.equals(empleadoNew)) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("You must retain Empleado " + empleadoOld + " since its usuario field is not nullable.");
+            }
             for (Venta ventasOldVenta : ventasOld) {
                 if (!ventasNew.contains(ventasOldVenta)) {
                     if (illegalOrphanMessages == null) {
@@ -86,6 +114,10 @@ public class UsuarioJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            if (empleadoNew != null) {
+                empleadoNew = em.getReference(empleadoNew.getClass(), empleadoNew.getIdPersona());
+                usuario.setEmpleado(empleadoNew);
+            }
             List<Venta> attachedVentasNew = new ArrayList<Venta>();
             for (Venta ventasNewVentaToAttach : ventasNew) {
                 ventasNewVentaToAttach = em.getReference(ventasNewVentaToAttach.getClass(), ventasNewVentaToAttach.getIdVenta());
@@ -94,6 +126,15 @@ public class UsuarioJpaController implements Serializable {
             ventasNew = attachedVentasNew;
             usuario.setVentas(ventasNew);
             usuario = em.merge(usuario);
+            if (empleadoNew != null && !empleadoNew.equals(empleadoOld)) {
+                Usuario oldUsuarioOfEmpleado = empleadoNew.getUsuario();
+                if (oldUsuarioOfEmpleado != null) {
+                    oldUsuarioOfEmpleado.setEmpleado(null);
+                    oldUsuarioOfEmpleado = em.merge(oldUsuarioOfEmpleado);
+                }
+                empleadoNew.setUsuario(usuario);
+                empleadoNew = em.merge(empleadoNew);
+            }
             for (Venta ventasNewVenta : ventasNew) {
                 if (!ventasOld.contains(ventasNewVenta)) {
                     Usuario oldUsuarioOfVentasNewVenta = ventasNewVenta.getUsuario();
@@ -135,6 +176,13 @@ public class UsuarioJpaController implements Serializable {
                 throw new NonexistentEntityException("The usuario with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
+            Empleado empleadoOrphanCheck = usuario.getEmpleado();
+            if (empleadoOrphanCheck != null) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Usuario (" + usuario + ") cannot be destroyed since the Empleado " + empleadoOrphanCheck + " in its empleado field has a non-nullable usuario field.");
+            }
             List<Venta> ventasOrphanCheck = usuario.getVentas();
             for (Venta ventasOrphanCheckVenta : ventasOrphanCheck) {
                 if (illegalOrphanMessages == null) {
@@ -199,5 +247,5 @@ public class UsuarioJpaController implements Serializable {
             em.close();
         }
     }
-
+    
 }

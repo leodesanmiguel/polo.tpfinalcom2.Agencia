@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package polo.persistencia;
 
 import java.io.Serializable;
@@ -18,7 +23,7 @@ import polo.persistencia.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Leo Martinez
+ * @author profl
  */
 public class EmpleadoJpaController implements Serializable {
 
@@ -26,8 +31,8 @@ public class EmpleadoJpaController implements Serializable {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
-
-    public EmpleadoJpaController() {
+   
+    public EmpleadoJpaController(){
         this.emf = Persistence.createEntityManagerFactory("TPFinalv2PU");
     }
 
@@ -42,7 +47,7 @@ public class EmpleadoJpaController implements Serializable {
             Empleado oldEmpleadoOfUsuario = usuarioOrphanCheck.getEmpleado();
             if (oldEmpleadoOfUsuario != null) {
                 if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
+                    illegalOrphanMessages = new ArrayList<>();
                 }
                 illegalOrphanMessages.add("The Usuario " + usuarioOrphanCheck + " already has an item of type Empleado whose usuario column cannot be null. Please make another selection for the usuario field.");
             }
@@ -70,7 +75,7 @@ public class EmpleadoJpaController implements Serializable {
                 usuario = em.merge(usuario);
             }
             if (suPuesto != null) {
-                suPuesto.getEmpleados().add(empleado);
+                suPuesto.getEmpleado().add(empleado);
                 suPuesto = em.merge(suPuesto);
             }
             em.getTransaction().commit();
@@ -92,12 +97,6 @@ public class EmpleadoJpaController implements Serializable {
             Puesto suPuestoOld = persistentEmpleado.getSuPuesto();
             Puesto suPuestoNew = empleado.getSuPuesto();
             List<String> illegalOrphanMessages = null;
-            if (usuarioOld != null && !usuarioOld.equals(usuarioNew)) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("You must retain Usuario " + usuarioOld + " since its empleado field is not nullable.");
-            }
             if (usuarioNew != null && !usuarioNew.equals(usuarioOld)) {
                 Empleado oldEmpleadoOfUsuario = usuarioNew.getEmpleado();
                 if (oldEmpleadoOfUsuario != null) {
@@ -119,16 +118,20 @@ public class EmpleadoJpaController implements Serializable {
                 empleado.setSuPuesto(suPuestoNew);
             }
             empleado = em.merge(empleado);
+            if (usuarioOld != null && !usuarioOld.equals(usuarioNew)) {
+                usuarioOld.setEmpleado(null);
+                usuarioOld = em.merge(usuarioOld);
+            }
             if (usuarioNew != null && !usuarioNew.equals(usuarioOld)) {
                 usuarioNew.setEmpleado(empleado);
                 usuarioNew = em.merge(usuarioNew);
             }
             if (suPuestoOld != null && !suPuestoOld.equals(suPuestoNew)) {
-                suPuestoOld.getEmpleados().remove(empleado);
+                suPuestoOld.getEmpleado().remove(empleado);
                 suPuestoOld = em.merge(suPuestoOld);
             }
             if (suPuestoNew != null && !suPuestoNew.equals(suPuestoOld)) {
-                suPuestoNew.getEmpleados().add(empleado);
+                suPuestoNew.getEmpleado().add(empleado);
                 suPuestoNew = em.merge(suPuestoNew);
             }
             em.getTransaction().commit();
@@ -148,7 +151,7 @@ public class EmpleadoJpaController implements Serializable {
         }
     }
 
-    public void destroy(int id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(int id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -160,20 +163,14 @@ public class EmpleadoJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The empleado with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            Usuario usuarioOrphanCheck = empleado.getUsuario();
-            if (usuarioOrphanCheck != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Empleado (" + empleado + ") cannot be destroyed since the Usuario " + usuarioOrphanCheck + " in its usuario field has a non-nullable empleado field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
+            Usuario usuario = empleado.getUsuario();
+            if (usuario != null) {
+                usuario.setEmpleado(null);
+                usuario = em.merge(usuario);
             }
             Puesto suPuesto = empleado.getSuPuesto();
             if (suPuesto != null) {
-                suPuesto.getEmpleados().remove(empleado);
+                suPuesto.getEmpleado().remove(empleado);
                 suPuesto = em.merge(suPuesto);
             }
             em.remove(empleado);
@@ -230,5 +227,5 @@ public class EmpleadoJpaController implements Serializable {
             em.close();
         }
     }
-
+    
 }

@@ -73,7 +73,7 @@ public class Venta implements Serializable {
      * Todas las ventas tienen un solo paquete
      */
     @ManyToOne(targetEntity = Paquete.class)
-    @JoinColumn(name = "paqueteId")
+    @JoinColumn(name = "IDPAQUETE")
     private Paquete paquete;
 
     public Venta() {

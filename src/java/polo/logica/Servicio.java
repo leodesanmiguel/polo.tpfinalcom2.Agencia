@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -42,7 +43,8 @@ public class Servicio implements Serializable {
     /**
      * Cada Servicio puede estar en uno o mas paquetes.
      */
-    @ManyToMany(mappedBy="servicio")
+    
+    @ManyToMany
      private List<Paquete> paquetes;
 
     public Servicio() {

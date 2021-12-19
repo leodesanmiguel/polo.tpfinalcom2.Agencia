@@ -47,7 +47,8 @@ public class Usuario implements Serializable {
      * ref: ejemplo1
      * https://docs.oracle.com/javaee/7/api/javax/persistence/OneToOne.html
      */
-    @OneToOne(optional = false, mappedBy = "empleado")
+    
+    @OneToOne
     Empleado empleado;
 
     /**
@@ -56,7 +57,7 @@ public class Usuario implements Serializable {
      * ref: Example 1: One-to-Many association using generics
      * https://docs.oracle.com/javaee/7/api/javax/persistence/OneToMany.html
      */
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Venta> ventas;
     
     public Usuario(){
@@ -127,6 +128,11 @@ public class Usuario implements Serializable {
 
     public void setVentas(List<Venta> ventas) {
         this.ventas = ventas;
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" + "idUser=" + idUser + ", nombreUsr=" + nombreUsr + ", password=" + password + ", altaU=" + altaU + ", activo=" + activo + ", empleado=" + empleado + '}';
     }
     
     
